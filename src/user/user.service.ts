@@ -73,12 +73,12 @@ export class UserService {
 			data: {
 				favorites: {
 					[isExists ? 'disconnect' : 'connect']: {
-						id: productId
+						id: +productId
 					}
 				}
 			}
 		})
 
-		return 'Success'
+		return {message: 'Success'}
 	}
 }
