@@ -23,8 +23,8 @@ const createProducts = async (quantity: number) => {
 				}).map(() => faker.image.url()),
 				category: {
 					create: {
-						name: categoryName
-						// slug: categoryName,
+						name: categoryName,
+						slug: faker.helpers.slugify(categoryName)
 					}
 				},
 				reviews: {
