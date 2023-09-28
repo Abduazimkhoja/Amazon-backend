@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { returnCategoryObject } from './category.return.object'
 import { CategoryDto } from './category.dto'
-import { generateSlug } from 'src/utils/generate-slug'
+import { faker } from '@faker-js/faker'
 
 @Injectable()
 export class CategoryService {
@@ -12,12 +12,10 @@ export class CategoryService {
 		const category = await this.prisma.category.findUnique({
 			where: { id },
 			select: returnCategoryObject
-		})  
+		})
 
-		if (!category) {
-			throw new Error('Category not found')
-		}
-
+		if (!category) {throw new NotFoundException('Category not found')}
+		
 		return category
 	}
 
@@ -27,9 +25,7 @@ export class CategoryService {
 			select: returnCategoryObject
 		})
 
-		if (!category) {
-			throw new Error('Category not found')
-		}
+		if (!category) throw new NotFoundException('Category not found')
 
 		return category
 	}
@@ -40,13 +36,13 @@ export class CategoryService {
 		})
 	}
 
-	async create() {
+	async create(dto: CategoryDto) {
 		return this.prisma.category.create({
 			data: {
-				name: '',
-				slug: ''
+				name: dto.name,
+				slug: faker.helpers.slugify(dto.name).toLowerCase()
 			}
-		})  
+		})
 	}
 
 	async update(id: number, dto: CategoryDto) {
@@ -54,7 +50,7 @@ export class CategoryService {
 			where: { id },
 			data: {
 				name: dto.name,
-				slug: generateSlug(dto.name)
+				slug: faker.helpers.slugify(dto.name).toLowerCase()
 			}
 		})
 	}
