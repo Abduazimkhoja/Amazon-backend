@@ -19,7 +19,7 @@ export class ReviewService {
 			where: { id: productId }
 		})
 
-		if (!product){ throw new NotFoundException('Product not found')}
+		if (!product) throw new NotFoundException('Product not found')
 
 		return this.prisma.review.create({
 			data: {
@@ -30,6 +30,7 @@ export class ReviewService {
 		})
 	}
 
+	// average score
 	async getAverageValueByProductId(productId: number) {
 		return this.prisma.review
 			.aggregate({

@@ -24,6 +24,7 @@ export class ReviewController {
 		return this.reviewService.getAll()
 	}
 
+	// create Review
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('leave/:productId')
