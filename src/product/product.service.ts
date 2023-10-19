@@ -1,14 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { PrismaService } from 'src/prisma.service'
-import {
-	returnProductObject,
-	returnProductObjectFullest
-} from './product-return.object'
-import { ProductDto } from './dto/product.dto'
 import { faker } from '@faker-js/faker'
-import { EnumProductSort, GetAllProductDto } from './dto/get-all.product.dto'
-import { PaginationService } from '../pagination/pagination.service'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { PrismaService } from 'src/prisma.service'
+import { PaginationService } from '../pagination/pagination.service'
+import { EnumProductSort, GetAllProductDto } from './dto/get-all.product.dto'
+import { ProductDto } from './dto/product.dto'
+import { returnProductObject,returnProductObjectFullest} from './product-return.object'
 
 @Injectable()
 export class ProductService {
@@ -65,7 +62,8 @@ export class ProductService {
 			where: prismaSearchTermFilter,
 			orderBy: prismaSort,
 			take: perPage,
-			skip
+			skip,
+			select: returnProductObject
 		})
 
 		return {
