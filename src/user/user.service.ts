@@ -79,6 +79,6 @@ export class UserService {
 			}
 		})
 
-		return {message: 'Success'}
+		return {message: 'Success', status: !isExists}
 	}
 }
