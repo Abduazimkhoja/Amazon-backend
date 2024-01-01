@@ -26,7 +26,13 @@ export class UserService {
 						name: true,
 						price: true,
 						images: true,
-						slug: true
+						slug: true,
+						category: {
+							select: {
+								slug: true
+							}
+						},
+						reviews: true
 					}
 				},
 				...selectObject
@@ -79,6 +85,6 @@ export class UserService {
 			}
 		})
 
-		return {message: 'Success', status: !isExists}
+		return { message: 'Success', status: !isExists }
 	}
 }
