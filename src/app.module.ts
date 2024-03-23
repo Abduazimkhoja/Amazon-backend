@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { ServeStaticModule } from '@nestjs/serve-static'
-import path from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
@@ -15,11 +14,12 @@ import { ProductModule } from './product/product.module'
 import { ReviewModule } from './review/review.module'
 import { StatisticsModule } from './statistics/statistics.module'
 import { UserModule } from './user/user.module'
+import { path } from 'app-root-path'
 
 @Module({
 	imports: [
 		ServeStaticModule.forRoot({
-			rootPath: `${path}/uploads`,
+			rootPath: `${path }/uploads`,
 			serveRoot: '/uploads'
 		}),
 		ConfigModule.forRoot(),
