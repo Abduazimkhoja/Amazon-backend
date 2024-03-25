@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	Param,
 	Post,
+	Put,
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
@@ -18,7 +19,6 @@ export class ReviewController {
 	constructor(private reviewService: ReviewService) {}
 
 	// get All
-	@UsePipes(new ValidationPipe())
 	@Get()
 	@Auth('admin')
 	async getAll() {
@@ -29,13 +29,26 @@ export class ReviewController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('leave/:productId')
-	@Auth()
+	@Auth('user')
 	async leaveReview(
 		@CurrentUser('id') id: number,
 		@Body() dto: ReviewDto,
 		@Param('productId') productId: string
 	) {
-		return this.reviewService.create(id, dto, +productId)
+		return this.reviewService.create(id, dto, Number(productId))
+	}
+
+	// update Review
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
+	@Put('update/:reviewId')
+	@Auth('user')
+	async update(
+		@CurrentUser('id') id: number,
+		@Body() dto: ReviewDto,
+		@Param('reviewId') reviewId: string
+	) {
+		return this.reviewService.update(id, dto, Number(reviewId))
 	}
 
 	//
