@@ -1,4 +1,4 @@
-import { User } from '.prisma/client'
+import { User } from '@prisma/client'
 import {
 	CanActivate,
 	ExecutionContext,
@@ -14,6 +14,6 @@ export class OnlyAdminGuard implements CanActivate {
 
 		if (!user.isAdmin) throw new ForbiddenException("You don't have rights!")
 
-		return user.isAdmin
+		return true // user.isAdmin
 	}
 }
