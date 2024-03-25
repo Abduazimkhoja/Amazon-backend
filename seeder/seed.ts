@@ -1,58 +1,86 @@
 import { faker } from '@faker-js/faker'
 import { PrismaClient, Product } from '@prisma/client'
 import * as dotenv from 'dotenv'
+import { generateRandomArray } from '../src/utils/random-array-utils'
 
 dotenv.config()
 const prisma = new PrismaClient()
 
-const createUniqueProduct = async () => {
+async function connectCategory(categoryName: string) {
+	const slug = faker.helpers.slugify(categoryName).toLowerCase()
+
+	const categoryId = await prisma.category.findUnique({
+		where: { slug },
+		select: { id: true }
+	})
+
+	// надо проверить естьли категория иначе подключить к id
+	if (categoryId) return { connect: { id: categoryId.id } }
+
+	return {
+		create: {
+			name: categoryName,
+			slug
+		}
+	}
+}
+
+async function createUniqueProduct() {
 	let product: Product | null = null
 	let attempts = 0
 	const maxAttempts = 4 // Максимальное количество попыток
 
 	while (!product && attempts < maxAttempts) {
-		const productName = faker.commerce.productName()
-		const categoryName = faker.commerce.department()
+		const usersLength = 4
 
-		try {
-			product = await prisma.product.create({
-				data: {
-					name: productName,
-					slug: faker.helpers.slugify(productName).toLowerCase(),
-					description: faker.commerce.productDescription(),
-					price: Number(faker.commerce.price(10, 999, 0)),
-					images: Array.from({
-						length: faker.number.int({ min: 2, max: 6 })
-					}).map(() => faker.image.url({ width: 500, height: 500 })),
-					category: {
-						create: {
-							name: categoryName,
-							slug: faker.helpers.slugify(categoryName).toLowerCase()
-						}
-					},
-					reviews: {
-						create: [
-							{
-								rating: faker.number.int({ min: 1, max: 5 }),
-								text: faker.lorem.paragraph(),
-								user: { connect: { id: 1 } }
-							},
-							{
-								rating: faker.number.int({ min: 1, max: 5 }),
-								text: faker.lorem.paragraph(),
-								user: { connect: { id: 1 } }
-							}
-						]
-					}
+		// random
+		const randomUserConnect = {
+			connect: { id: faker.number.int({ min: 1, max: usersLength }) }
+		}
+		const randomImageUrl = `/uploads/(${faker.number.int({ min: 1, max: 76 })}).jpg`
+
+		// fake product data item
+		const fakeName = faker.commerce.productName()
+		const fakeSlug = faker.helpers.slugify(fakeName).toLowerCase()
+		const fakeDescription = faker.commerce.productDescription()
+		const fakePrice = Number(
+			faker.commerce.price({ min: 1, max: 10000, dec: 0 })
+		)
+		const fakeImages = generateRandomArray(2, 6).map(() => randomImageUrl)
+		const fakeCategory = faker.commerce.department()
+		const fakeReviews = {
+			create: generateRandomArray(1, 6).map(() => {
+				const review = {
+					rating: faker.number.int({ min: 0, max: 5 }),
+					text: faker.lorem.paragraph(),
+					user: randomUserConnect
 				}
-			})
-		} catch (error) {
-			// Перехватываем ошибку уникальности и печатаем предупреждение
-			console.warn(
-				`❌- Failed to create product with name "${productName}". 🔄️ - Retrying...`
-			)
 
-			// Увеличиваем счетчик попыток
+				return review
+			})
+		}
+
+		// Fake data
+		const productFakerData = {
+			data: {
+				name: fakeName,
+				slug: fakeSlug,
+				description: fakeDescription,
+				price: fakePrice,
+				images: fakeImages,
+				category: await connectCategory(fakeCategory),
+				reviews: fakeReviews
+			}
+		}
+
+		// Create fake data
+		try {
+			product = await prisma.product.create(productFakerData)
+		} catch (error) {
+			if (`${error.code}` == 'P2025')
+				throw new Error(
+					`❓ - 👤 User not found!\n Min user count: ${usersLength}`
+				)
 			attempts++
 		}
 	}
@@ -70,7 +98,9 @@ const createProducts = async (quantity: number) => {
 		}
 	}
 
-	console.log(`Created ${products.length} products`)
+	console.log(
+		`Created ${products.length} products. Fails: ${quantity - products.length}`
+	)
 }
 
 async function main() {
@@ -80,7 +110,7 @@ async function main() {
 }
 
 main()
-	.catch(e => console.error('ERROR❌❌❌', e, 'ERROR❌❌❌'))
+	.catch(e => console.error('ERROR❌❌❌\n', e, '\nERROR❌❌❌'))
 	.finally(async () => {
 		await prisma.$disconnect()
 	})
