@@ -10,10 +10,8 @@ export class StatisticsService {
 		const ordersCount = await this.prisma.order.count()
 		const reviewsCount = await this.prisma.review.count()
 		const usersCount = await this.prisma.user.count()
-    const totalAmount = await this.prisma.order.aggregate({
-			_sum: {
-				total: true
-			}
+		const totalAmount = await this.prisma.order.aggregate({
+			_sum: { total: true }
 		})
 
 		return [
@@ -31,7 +29,7 @@ export class StatisticsService {
 			},
 			{
 				name: 'Total amount',
-				value: totalAmount
+				value: totalAmount._sum.total || 0
 			}
 		]
 	}
