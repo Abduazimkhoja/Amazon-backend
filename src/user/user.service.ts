@@ -12,6 +12,20 @@ import { hash } from 'argon2'
 @Injectable()
 export class UserService {
 	constructor(private prisma: PrismaService) {}
+	// GET
+	async getLength() {
+		const usersLength = Number(await this.prisma.user.count())
+		return isNaN(usersLength) ? 0 : usersLength
+	}
+
+	async getAll() {
+		const users = await this.prisma.user.findMany({
+			select: returnUserObject
+		})
+
+		if (!users) throw new NotFoundException('Users not found')
+		return users
+	}
 
 	async byId(id: number, selectObject: Prisma.UserSelect = {}) {
 		const user = await this.prisma.user.findUnique({
@@ -39,10 +53,21 @@ export class UserService {
 			}
 		})
 
-		if (!user) throw new Error('User not found')
+		if (!user) throw new NotFoundException('User not found')
 		return user
 	}
 
+	async getIsAdmin(userId: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { isAdmin: true }
+		})
+
+		if (!user) throw new NotFoundException('Users not found')
+		return user.isAdmin
+	}
+
+	// PUT
 	async updateProfile(id: number, dto: UserDto) {
 		const isSameUser = await this.prisma.user.findUnique({
 			where: { email: dto.email }
@@ -65,6 +90,7 @@ export class UserService {
 		})
 	}
 
+	// PATCH
 	async toggleFavorite(userId: number, productId: number) {
 		const user = await this.byId(userId)
 
