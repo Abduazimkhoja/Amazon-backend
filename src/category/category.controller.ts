@@ -18,10 +18,10 @@ import { CategoryService } from './category.service'
 export class CategoryController {
 	constructor(private readonly categoryService: CategoryService) {}
 
-	// get slug
-	@Get('by-slug/:slug')
-	async getBySlug(@Param('slug') slug: string) {
-		return this.categoryService.bySlug(slug)
+	// get all category
+	@Get()
+	async getAll() {
+		return this.categoryService.getAll()
 	}
 
 	// by id
@@ -30,10 +30,10 @@ export class CategoryController {
 		return this.categoryService.byId(+id)
 	}
 
-	// get all category
-	@Get()
-	async getAll() {
-		return this.categoryService.getAll()
+	// get slug
+	@Get('by-slug/:slug')
+	async getBySlug(@Param('slug') slug: string) {
+		return this.categoryService.bySlug(slug)
 	}
 
 	// create category
