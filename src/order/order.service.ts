@@ -98,4 +98,8 @@ export class OrderService {
 
 		return true
 	}
+
+  async getCount() {
+		return this.prisma.order.count()
+	}
 }
