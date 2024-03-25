@@ -29,12 +29,12 @@ export class ProductController {
 
 	// get product by id
 	@Get(':id')
-	@Auth()
+	@Auth('admin')
 	async getProduct(@Param('id') id: string) {
 		return this.productService.byId(+id)
 	}
 
-	// get product by id
+	// get product similar
 	@Get('similar/:id')
 	async getSimilar(@Param('id') id: string) {
 		return this.productService.getSimilar(+id)
@@ -55,7 +55,7 @@ export class ProductController {
 	// Create product
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Auth()
+	@Auth('admin')
 	@Post()
 	async createProduct() {
 		return this.productService.create()
@@ -65,7 +65,7 @@ export class ProductController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Put(':id')
-	@Auth()
+	@Auth('admin')
 	async updateProduct(@Param('id') id: string, @Body() dto: ProductDto) {
 		return this.productService.update(+id, dto)
 	}
@@ -73,7 +73,7 @@ export class ProductController {
 	// Update product
 	@HttpCode(200)
 	@Delete(':id')
-	@Auth()
+	@Auth('admin')
 	async deleteProduct(@Param('id') id: string) {
 		return this.productService.delete(+id)
 	}
