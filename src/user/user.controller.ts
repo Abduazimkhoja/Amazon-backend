@@ -17,12 +17,22 @@ import { UserDto } from './user.dto'
 @Controller('users')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
-	// get profile
+	// GET
+	// get all users
+	@Get()
+	@Auth('admin')
+	async getAll() {
+		return this.userService.getAll()
+	}
+
+	// get user profile
 	@Get('profile')
 	@Auth()
 	async getProfile(@CurrentUser('id') id: number) {
 		return this.userService.byId(id)
 	}
+
+	// PUT
 	// update profile
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
@@ -32,6 +42,8 @@ export class UserController {
 		return this.userService.updateProfile(id, dto)
 	}
 
+	// PATCH
+	// toggle favorite
 	@HttpCode(200)
 	@Auth()
 	@Patch('profile/favorites/:productId')
