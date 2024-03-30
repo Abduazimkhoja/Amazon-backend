@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	Param,
@@ -25,10 +26,23 @@ export class ReviewController {
 		return this.reviewService.getAll()
 	}
 
+	// get by id
+	@Get(':id')
+	@Auth('admin')
+	async getReview(@Param('id') id: string) {
+		return this.reviewService.byId(Number(id))
+	}
+
+	// average-by-product
+	@Get('average-by-product/:productId')
+	async getAverageByProduct(@Param('productId') productId: string) {
+		return this.reviewService.getAverageValueByProductId(+productId)
+	}
+
 	// create Review
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Post('leave/:productId')
+	@Post(':productId')
 	@Auth('user')
 	async leaveReview(
 		@CurrentUser('id') id: number,
@@ -41,7 +55,7 @@ export class ReviewController {
 	// update Review
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Put('update/:reviewId')
+	@Put(':reviewId')
 	@Auth('user')
 	async update(
 		@CurrentUser('id') id: number,
@@ -51,9 +65,15 @@ export class ReviewController {
 		return this.reviewService.update(id, dto, Number(reviewId))
 	}
 
-	//
-	@Get('average-by-product/:productId')
-	async getAverageByProduct(@Param('productId') productId: string) {
-		return this.reviewService.getAverageValueByProductId(+productId)
+	// Delete
+	@HttpCode(200)
+	@UsePipes(new ValidationPipe())
+	@Auth()
+	@Delete(':reviewId')
+	async delete(
+		@CurrentUser('id') userId: number,
+		@Param('reviewId') reviewId: string
+	) {
+		return this.reviewService.delete(userId, Number(reviewId))
 	}
 }
