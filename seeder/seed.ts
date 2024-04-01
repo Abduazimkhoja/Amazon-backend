@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { PrismaClient, Product } from '@prisma/client'
+import { Prisma, PrismaClient, Product } from '@prisma/client'
 import * as dotenv from 'dotenv'
 import { generateRandomArray } from '../src/utils/random-array-utils'
 
@@ -37,7 +37,8 @@ async function createUniqueProduct() {
 		const randomUserConnect = {
 			connect: { id: faker.number.int({ min: 1, max: usersLength }) }
 		}
-		const randomImageUrl = `/uploads/(${faker.number.int({ min: 1, max: 76 })}).jpg`
+		const randomImageUrl = () =>
+			`/uploads/(${faker.number.int({ min: 1, max: 76 })}).jpg`
 
 		// fake product data item
 		const fakeName = faker.commerce.productName()
@@ -46,7 +47,7 @@ async function createUniqueProduct() {
 		const fakePrice = Number(
 			faker.commerce.price({ min: 1, max: 10000, dec: 0 })
 		)
-		const fakeImages = generateRandomArray(2, 6).map(() => randomImageUrl)
+		const fakeImages = generateRandomArray(2, 6).map(() => randomImageUrl())
 		const fakeCategory = faker.commerce.department()
 		const fakeReviews = {
 			create: generateRandomArray(1, 6).map(() => {
@@ -60,27 +61,26 @@ async function createUniqueProduct() {
 			})
 		}
 
-		// Fake data
-		const productFakerData = {
-			data: {
-				name: fakeName,
-				slug: fakeSlug,
-				description: fakeDescription,
-				price: fakePrice,
-				images: fakeImages,
-				category: await connectCategory(fakeCategory),
-				reviews: fakeReviews
-			}
-		}
-
 		// Create fake data
 		try {
-			product = await prisma.product.create(productFakerData)
+			product = await prisma.product.create({
+				data: {
+					name: fakeName,
+					slug: fakeSlug,
+					description: fakeDescription,
+					price: fakePrice,
+					images: fakeImages,
+					category: await connectCategory(fakeCategory),
+					reviews: fakeReviews,
+          user: randomUserConnect
+				}
+			})
 		} catch (error) {
-			if (`${error.code}` == 'P2025')
+			if (`${error.code}` == 'P2025') {
 				throw new Error(
 					`❓ - 👤 User not found!\n Min user count: ${usersLength}`
 				)
+			}
 			attempts++
 		}
 	}
