@@ -23,7 +23,7 @@ export class ProductController {
 	// getAll product
 	@UsePipes(new ValidationPipe())
 	@Get()
-	async getAll(@Query() queryDto: GetAllProductDto) {
+	async getAll(@Query() queryDto?: GetAllProductDto) {
 		return this.productService.getAll(queryDto)
 	}
 

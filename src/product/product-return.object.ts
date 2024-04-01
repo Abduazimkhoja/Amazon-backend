@@ -17,6 +17,16 @@ export const returnProductObject: Prisma.ProductSelect = {
 	category: { select: returnCategoryObject }
 }
 
+export const returnProductObjectMinify: Prisma.ProductSelect = {
+	id: true,
+	name: true,
+	slug: true,
+	images: true,
+	price: true,
+	reviews: { select: { rating: true } },
+	category: { select: { slug: true } }
+}
+
 export const returnProductObjectFullest: Prisma.ProductSelect = {
 	...returnProductObject
 }

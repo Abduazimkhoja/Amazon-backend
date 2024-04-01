@@ -1,16 +1,17 @@
 import { faker } from '@faker-js/faker'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { CategoryService } from 'src/category/category.service'
 import { PrismaService } from 'src/prisma.service'
+import { convertToNumber } from 'src/utils/convert-to-number'
 import { PaginationService } from '../pagination/pagination.service'
 import { EnumProductSort, GetAllProductDto } from './dto/get-all.product.dto'
 import { ProductDto } from './dto/product.dto'
 import {
 	returnProductObject,
-	returnProductObjectFullest
+	returnProductObjectFullest,
+	returnProductObjectMinify
 } from './product-return.object'
-import { CategoryService } from 'src/category/category.service'
-import { convertToNumber } from 'src/utils/convert-to-number'
 
 @Injectable()
 export class ProductService {
@@ -20,25 +21,35 @@ export class ProductService {
 		private categoryService: CategoryService
 	) {}
 
-	async getAll(dto: GetAllProductDto = {}) {
+	async getAll(dto?: GetAllProductDto) {
+		const select = dto?.minify
+			? { ...returnProductObjectMinify }
+			: { ...returnProductObject }
+
+		if (!Object.keys(dto).length) {
+			let products = await this.prisma.product.findMany({ select })
+			if (!products) throw new NotFoundException('Products not found')
+
+
+			return { products, length: products.length }
+		}
+
 		const { perPage, skip } = this.paginationService.getPagination(dto)
-
-		const filters = this.createFilter(dto)
-
-		const products = await this.prisma.product.findMany({
-			where: filters,
+		const where = this.createFilter(dto)
+		const productParams = {
+			where,
 			orderBy: this.getSortOption(dto.sort),
 			take: perPage,
 			skip,
-			select: returnProductObject
-		})
-
-		return {
-			products,
-			length: await this.prisma.product.count({
-				where: filters
-			})
+			select
 		}
+
+		const products = await this.prisma.product.findMany(productParams)
+		if (!products) throw new NotFoundException('Products not found')
+
+		const length = await this.prisma.product.count({ where })
+
+		return { products, length }
 	}
 
 	async byId(id: number) {
@@ -47,9 +58,7 @@ export class ProductService {
 			select: returnProductObjectFullest
 		})
 
-		if (!product) {
-			throw new NotFoundException('Product not found')
-		}
+		if (!product) throw new NotFoundException('Product not found')
 
 		return product
 	}
@@ -115,7 +124,7 @@ export class ProductService {
 			where: { id },
 			data: {
 				description,
-				images,
+				// images,
 				price,
 				name,
 				slug: faker.helpers.slugify(name).toLowerCase(),
@@ -132,14 +141,14 @@ export class ProductService {
 
 	private createFilter(dto: GetAllProductDto): Prisma.ProductWhereInput {
 		const filters: Prisma.ProductWhereInput[] = []
-		const ratingToNumber = dto.ratings.split('|').map(Number)
-		// .filter(value => !isNaN(value))
+		const ratingToNumber = dto.ratings
+			.split('|')
+			.map(Number)
+			.filter(value => !isNaN(value))
 
-		if (dto.searchTerm)
-			filters.push(this.getSearchTermFilter(dto.searchTerm))
+		if (dto.searchTerm) filters.push(this.getSearchTermFilter(dto.searchTerm))
 
-		if (dto.ratings)
-			filters.push(this.getRatingFilter(ratingToNumber))
+		if (dto.ratings) filters.push(this.getRatingFilter(ratingToNumber))
 
 		if (dto.minPrice || dto.maxPrice)
 			filters.push(
@@ -158,16 +167,6 @@ export class ProductService {
 	private getSortOption(
 		sort: EnumProductSort
 	): Prisma.ProductOrderByWithRelationInput[] {
-		if (sort === EnumProductSort.LOW_PRICE) {
-			return [{ price: 'asc' }]
-		} else if (sort === EnumProductSort.HIGH_PRICE) {
-			return [{ price: 'desc' }]
-		} else if (sort === EnumProductSort.OLDEST) {
-			return [{ createdAt: 'asc' }]
-		} else {
-			return [{ createdAt: 'desc' }]
-		}
-
 		const test = {
 			LOW_PRICE: { price: 'asc' },
 			HIGH_PRICE: { price: 'desc' },
