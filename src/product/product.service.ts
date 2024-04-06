@@ -30,7 +30,6 @@ export class ProductService {
 			let products = await this.prisma.product.findMany({ select })
 			if (!products) throw new NotFoundException('Products not found')
 
-
 			return { products, length: products.length }
 		}
 
@@ -38,7 +37,7 @@ export class ProductService {
 		const where = this.createFilter(dto)
 		const productParams = {
 			where,
-			orderBy: this.getSortOption(dto.sort),
+			orderBy: this.getSortOption(dto.sort || EnumProductSort.HIGH_PRICE),
 			take: perPage,
 			skip,
 			select
@@ -141,14 +140,16 @@ export class ProductService {
 
 	private createFilter(dto: GetAllProductDto): Prisma.ProductWhereInput {
 		const filters: Prisma.ProductWhereInput[] = []
-		const ratingToNumber = dto.ratings
-			.split('|')
-			.map(Number)
-			.filter(value => !isNaN(value))
 
 		if (dto.searchTerm) filters.push(this.getSearchTermFilter(dto.searchTerm))
 
-		if (dto.ratings) filters.push(this.getRatingFilter(ratingToNumber))
+		if (dto.ratings) {
+			const ratingToNumber = dto.ratings
+				.split('|')
+				.map(Number)
+				.filter(value => !isNaN(value))
+			filters.push(this.getRatingFilter(ratingToNumber))
+		}
 
 		if (dto.minPrice || dto.maxPrice)
 			filters.push(
