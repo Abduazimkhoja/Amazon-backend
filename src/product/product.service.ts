@@ -37,7 +37,7 @@ export class ProductService {
 		const where = this.createFilter(dto)
 		const productParams = {
 			where,
-			orderBy: this.getSortOption(dto.sort || EnumProductSort.HIGH_PRICE),
+			orderBy: this.getSortOption(dto.sort),
 			take: perPage,
 			skip,
 			select
@@ -123,7 +123,7 @@ export class ProductService {
 			where: { id },
 			data: {
 				description,
-				// images,
+				images,
 				price,
 				name,
 				slug: faker.helpers.slugify(name).toLowerCase(),
@@ -166,16 +166,19 @@ export class ProductService {
 	}
 
 	private getSortOption(
-		sort: EnumProductSort
+		sort?: EnumProductSort
 	): Prisma.ProductOrderByWithRelationInput[] {
-		const test = {
-			LOW_PRICE: { price: 'asc' },
-			HIGH_PRICE: { price: 'desc' },
-			OLDEST: { createdAt: 'asc' },
-			NEWEST: { createdAt: 'desc' }
+		const sortObject: Record<
+			EnumProductSort,
+			Prisma.ProductOrderByWithRelationInput
+		> = {
+			'low-price': { price: 'asc' },
+			'high-price': { price: 'desc' },
+			oldest: { createdAt: 'asc' },
+			newest: { createdAt: 'desc' }
 		}
 
-		return [test[sort] || test['NEWEST']]
+		return [sortObject[sort] || sortObject['newest']]
 	}
 
 	private getSearchTermFilter(searchTerm: string): Prisma.ProductWhereInput {
