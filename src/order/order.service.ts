@@ -67,7 +67,7 @@ export class OrderService {
 			},
 			confirmation: {
 				type: 'redirect',
-				return_url: 'http://localhost:3000/thanks'
+				return_url: process.env['THANKS_PAGE']
 			},
 			description: `Order #${order.id}`
 		})
@@ -99,7 +99,7 @@ export class OrderService {
 		return true
 	}
 
-  async getCount() {
+	async getCount() {
 		return this.prisma.order.count()
 	}
 }
