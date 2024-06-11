@@ -1,5 +1,10 @@
 import { faker } from '@faker-js/faker'
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException
+} from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { CategoryService } from 'src/category/category.service'
 import { PrismaService } from 'src/prisma.service'
@@ -102,16 +107,44 @@ export class ProductService {
 		return products
 	}
 
-	async create() {
-		const product = await this.prisma.product.create({
-			data: {
-				description: '',
-				name: '',
-				price: 0,
-				slug: ''
+	async create(userId: number, dto: ProductDto) {
+		const { description, images, price, name, categoryId } = dto
+
+		// Проверка входных данных
+		if (!name || !description || !price || !images || !categoryId) {
+			throw new BadRequestException('Missing required fields')
+		}
+
+		try {
+			// Создание продукта
+			const product = await this.prisma.product.create({
+				data: {
+					name,
+					description,
+					price,
+					images,
+					slug: faker.helpers.slugify(name).toLowerCase(),
+					user: { connect: { id: userId } },
+					category: { connect: { id: categoryId } }
+				}
+			})
+			return { status: 'success', id: product.id }
+		} catch (error) {
+			// Обработка ошибок подключения к базе данных
+			if (error.code === 'P2002') {
+				throw new BadRequestException('Duplicate entry')
 			}
-		})
-		return product.id
+
+			// Обработка ошибки при связывании с пользователем или категорией
+			if (error.code === 'P2025') {
+				throw new NotFoundException('User or category not found')
+			}
+
+			// Обработка неизвестных ошибок
+			throw new InternalServerErrorException(
+				'Internal server error: ' + error.message
+			)
+		}
 	}
 
 	async update(id: number, dto: ProductDto) {

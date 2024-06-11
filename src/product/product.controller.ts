@@ -11,10 +11,11 @@ import {
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
-import { ProductService } from './product.service'
-import { GetAllProductDto } from './dto/get-all.product.dto'
 import { Auth } from 'src/auth/decorators/auth.decorator'
+import { CurrentUser } from 'src/auth/decorators/user.decorator'
+import { GetAllProductDto } from './dto/get-all.product.dto'
 import { ProductDto } from './dto/product.dto'
+import { ProductService } from './product.service'
 
 @Controller('products')
 export class ProductController {
@@ -57,8 +58,8 @@ export class ProductController {
 	@HttpCode(200)
 	@Auth('admin')
 	@Post()
-	async createProduct() {
-		return this.productService.create()
+	async createProduct(@CurrentUser('id') id: number, @Body() dto: ProductDto) {
+		return this.productService.create(+id, dto)
 	}
 
 	// Update product
