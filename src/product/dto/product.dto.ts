@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import {
+  ArrayMaxSize,
 	ArrayMinSize,
 	IsNumber,
 	IsOptional,
@@ -19,6 +20,7 @@ export class ProductDto implements Prisma.ProductUpdateInput {
 
 	@IsString({ each: true })
 	@ArrayMinSize(1)
+  @ArrayMaxSize(12)
 	images?: string[]
 
 	@IsNumber()
