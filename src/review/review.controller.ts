@@ -44,7 +44,7 @@ export class ReviewController {
 	@HttpCode(200)
 	@Post(':productId')
 	@Auth('user')
-	async leaveReview(
+	async createReview(
 		@CurrentUser('id') id: number,
 		@Body() dto: ReviewDto,
 		@Param('productId') productId: string
