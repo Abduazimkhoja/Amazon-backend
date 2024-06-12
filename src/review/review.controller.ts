@@ -10,11 +10,13 @@ import {
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { ReviewDto } from './review.dto'
 import { ReviewService } from './review.service'
 
+@ApiTags('Reviews')
 @Controller('reviews')
 export class ReviewController {
 	constructor(private reviewService: ReviewService) {}
