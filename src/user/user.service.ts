@@ -3,11 +3,11 @@ import {
 	Injectable,
 	NotFoundException
 } from '@nestjs/common'
-import { PrismaService } from 'src/prisma.service'
-import { returnUserObject } from './user.object'
 import { Prisma } from '@prisma/client'
-import { UserDto } from './user.dto'
 import { hash } from 'argon2'
+import { PrismaService } from 'src/prisma.service'
+import { UserDto } from './user.dto'
+import { returnUserObject } from './user.object'
 
 @Injectable()
 export class UserService {
@@ -92,15 +92,25 @@ export class UserService {
 
 	// PATCH
 	async toggleFavorite(userId: number, productId: number) {
-		const user = await this.byId(userId)
+		const userWithFavorite = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: {
+				favorites: {
+					where: {
+						id: productId
+					},
+					select: { id: true }
+				}
+			}
+		})
 
-		if (!user) throw new NotFoundException('User not found')
+		if (!userWithFavorite) throw new NotFoundException('User not found')
 
-		const isExists = user.favorites.some(product => product.id === productId)
+		const isExists = userWithFavorite.favorites.length > 0
 
 		await this.prisma.user.update({
 			where: {
-				id: user.id
+				id: userId
 			},
 			data: {
 				favorites: {
