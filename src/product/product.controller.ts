@@ -11,12 +11,14 @@ import {
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { GetAllProductDto } from './dto/get-all.product.dto'
 import { ProductDto } from './dto/product.dto'
 import { ProductService } from './product.service'
 
+@ApiTags('Products')
 @Controller('products')
 export class ProductController {
 	constructor(private readonly productService: ProductService) {}

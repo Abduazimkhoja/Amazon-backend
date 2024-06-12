@@ -7,12 +7,14 @@ import {
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { OrderDto } from './order.dto'
 import { OrderService } from './order.service'
 import { PaymentStatusDto } from './payment-status.dto'
 
+@ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
 	constructor(private readonly orderService: OrderService) {}
