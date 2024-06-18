@@ -1,6 +1,8 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator'
+import { AuthSwaggerDtoDecorators } from '../swagger/auth-swagger.dto'
 
 export class RefreshTokenDto {
-   @IsString()
-   refreshToken: string
+	@IsString()
+	@AuthSwaggerDtoDecorators.refreshToken
+	refreshToken: string
 }

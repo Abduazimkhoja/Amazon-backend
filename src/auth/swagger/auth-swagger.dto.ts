@@ -10,7 +10,13 @@ const authPasswordSwaggerDto = ApiProperty({
 	example: 'password123'
 })
 
+const authRefreshTokenSwaggerDto = ApiProperty({
+	description: 'Refresh token',
+	example: 'example-refresh-token'
+})
+
 export const AuthSwaggerDtoDecorators = {
 	email: authEmailSwaggerDto,
-	password: authPasswordSwaggerDto
+	password: authPasswordSwaggerDto,
+	refreshToken: authRefreshTokenSwaggerDto
 }
