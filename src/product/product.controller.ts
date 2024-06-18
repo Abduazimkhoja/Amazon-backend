@@ -17,6 +17,7 @@ import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { GetAllProductDto } from './dto/get-all.product.dto'
 import { ProductDto } from './dto/product.dto'
 import { ProductService } from './product.service'
+import { ProductSwaggerControllerDecorators } from './swagger/product-swagger.controller'
 
 @ApiTags('Products')
 @Controller('products')
@@ -26,32 +27,37 @@ export class ProductController {
 	// getAll product
 	@UsePipes(new ValidationPipe())
 	@Get()
+	@ProductSwaggerControllerDecorators.getAll()
 	async getAll(@Query() queryDto?: GetAllProductDto) {
 		return this.productService.getAll(queryDto)
 	}
 
 	// get product by id
-	@Get(':id')
 	@Auth('admin')
-	async getProduct(@Param('id') id: string) {
+	@Get(':id')
+	@ProductSwaggerControllerDecorators.getById()
+	async getById(@Param('id') id: string) {
 		return this.productService.byId(+id)
 	}
 
 	// get product similar
 	@Get('similar/:id')
+	@ProductSwaggerControllerDecorators.getSimilar()
 	async getSimilar(@Param('id') id: string) {
 		return this.productService.getSimilar(+id)
 	}
 
 	// get product by slug
 	@Get('by-slug/:slug')
-	async getProductBySlug(@Param('slug') slug: string) {
+	@ProductSwaggerControllerDecorators.getBySlug()
+	async getBySlug(@Param('slug') slug: string) {
 		return this.productService.bySlug(slug)
 	}
 
 	// get product by categorySlug
 	@Get('by-category/:categorySlug')
-	async getProductByCategory(@Param('categorySlug') categorySlug: string) {
+	@ProductSwaggerControllerDecorators.getByCategorySlug()
+	async getByCategorySlug(@Param('categorySlug') categorySlug: string) {
 		return this.productService.byCategory(categorySlug)
 	}
 
@@ -60,7 +66,8 @@ export class ProductController {
 	@HttpCode(200)
 	@Auth('admin')
 	@Post()
-	async createProduct(@CurrentUser('id') id: number, @Body() dto: ProductDto) {
+	@ProductSwaggerControllerDecorators.create()
+	async create(@CurrentUser('id') id: number, @Body() dto: ProductDto) {
 		return this.productService.create(+id, dto)
 	}
 
@@ -69,15 +76,17 @@ export class ProductController {
 	@HttpCode(200)
 	@Put(':id')
 	@Auth('admin')
-	async updateProduct(@Param('id') id: string, @Body() dto: ProductDto) {
+	@ProductSwaggerControllerDecorators.update()
+	async update(@Param('id') id: string, @Body() dto: ProductDto) {
 		return this.productService.update(+id, dto)
 	}
 
-	// Update product
+	// Delete product
 	@HttpCode(200)
 	@Delete(':id')
 	@Auth('admin')
-	async deleteProduct(@Param('id') id: string) {
+	@ProductSwaggerControllerDecorators.delete()
+	async delete(@Param('id') id: string) {
 		return this.productService.delete(+id)
 	}
 }

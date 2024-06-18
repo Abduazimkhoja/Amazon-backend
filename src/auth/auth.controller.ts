@@ -4,14 +4,13 @@ import {
 	HttpCode,
 	Post,
 	UsePipes,
-	ValidationPipe,
-	applyDecorators
+	ValidationPipe
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { AuthService } from './auth.service'
 import { AuthDto } from './dto/auth.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
-import { AuthSwaggerConfig } from './swagger/auth-swagger.config'
+import { AuthSwaggerControllerDecorators } from './swagger/auth-swagger.controller'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -21,7 +20,7 @@ export class AuthController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('login')
-	@applyDecorators(...AuthSwaggerConfig.controller.login)
+	@AuthSwaggerControllerDecorators.login()
 	async login(@Body() dto: AuthDto) {
 		return this.authService.login(dto)
 	}
@@ -29,7 +28,7 @@ export class AuthController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('login/access-token')
-	@applyDecorators(...AuthSwaggerConfig.controller.accessToken)
+	@AuthSwaggerControllerDecorators.accessToken()
 	async getNewTokens(@Body() dto: RefreshTokenDto) {
 		return this.authService.getNewTokens(dto.refreshToken)
 	}
@@ -37,7 +36,7 @@ export class AuthController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('register')
-	@applyDecorators(...AuthSwaggerConfig.controller.register)
+	@AuthSwaggerControllerDecorators.register()
 	async register(@Body() dto: AuthDto) {
 		return this.authService.register(dto)
 	}

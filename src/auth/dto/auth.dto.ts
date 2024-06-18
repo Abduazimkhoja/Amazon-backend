@@ -1,12 +1,12 @@
 import { IsEmail, IsString, MinLength } from 'class-validator'
-import { AuthSwaggerConfig } from '../swagger/auth-swagger.config'
+import { AuthSwaggerDtoDecorators } from '../swagger/auth-swagger.dto'
 
 export class AuthDto {
-	@AuthSwaggerConfig.dto.email
+	@AuthSwaggerDtoDecorators.email
 	@IsEmail()
 	email: string
 
-	@AuthSwaggerConfig.dto.password
+	@AuthSwaggerDtoDecorators.password
 	@MinLength(6, {
 		message: 'Password must be at least 6 characters long'
 	})

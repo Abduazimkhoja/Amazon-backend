@@ -1,28 +1,28 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator'
-import { ApiPropertyFactory } from 'src/utils/api-property-factory'
+import { UserSwaggerDtoDecorators } from './swagger/user-swagger.dto'
 
 export class UserDto {
-	@ApiPropertyFactory('User name', 'Alex')
 	@IsOptional()
 	@IsString()
+	@UserSwaggerDtoDecorators.name
 	name: string
 
-	@ApiPropertyFactory('User email address', 'emailName@gmail.com')
 	@IsEmail()
+	@UserSwaggerDtoDecorators.email
 	email: string
 
-	@ApiPropertyFactory('User phone', '998990004499')
 	@IsOptional()
 	@IsString()
+	@UserSwaggerDtoDecorators.phone
 	phone?: string
 
-	@ApiPropertyFactory('User password', 'f30L@jfsjlapkc')
 	@IsOptional()
 	@IsString()
+	@UserSwaggerDtoDecorators.password
 	password?: string
 
-	@ApiPropertyFactory('User avatarPath', 'https://image.jpg')
 	@IsOptional()
 	@IsString()
+	@UserSwaggerDtoDecorators.avatarPath
 	avatarPath: string
 }
