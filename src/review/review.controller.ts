@@ -15,6 +15,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator'
 import { CurrentUser } from 'src/auth/decorators/user.decorator'
 import { ReviewDto } from './review.dto'
 import { ReviewService } from './review.service'
+import { ReviewSwaggerControllerDecorators } from './swagger/review-swagger.controller'
 
 @ApiTags('Reviews')
 @Controller('reviews')
@@ -24,6 +25,7 @@ export class ReviewController {
 	// get All
 	@Get()
 	@Auth('admin')
+	@ReviewSwaggerControllerDecorators.getAll()
 	async getAll() {
 		return this.reviewService.getAll()
 	}
@@ -31,12 +33,14 @@ export class ReviewController {
 	// get by id
 	@Get(':id')
 	@Auth('admin')
+	@ReviewSwaggerControllerDecorators.getById()
 	async getReview(@Param('id') id: string) {
 		return this.reviewService.byId(Number(id))
 	}
 
 	// average-by-product
 	@Get('average-by-product/:productId')
+	@ReviewSwaggerControllerDecorators.getAverageByProduct()
 	async getAverageByProduct(@Param('productId') productId: string) {
 		return this.reviewService.getAverageValueByProductId(+productId)
 	}
@@ -46,6 +50,7 @@ export class ReviewController {
 	@HttpCode(200)
 	@Post(':productId')
 	@Auth('user')
+	@ReviewSwaggerControllerDecorators.create()
 	async createReview(
 		@CurrentUser('id') id: number,
 		@Body() dto: ReviewDto,
@@ -59,6 +64,7 @@ export class ReviewController {
 	@HttpCode(200)
 	@Put(':reviewId')
 	@Auth('user')
+	@ReviewSwaggerControllerDecorators.update()
 	async update(
 		@CurrentUser('id') id: number,
 		@Body() dto: ReviewDto,
@@ -72,6 +78,7 @@ export class ReviewController {
 	@UsePipes(new ValidationPipe())
 	@Auth()
 	@Delete(':reviewId')
+	@ReviewSwaggerControllerDecorators.delete()
 	async delete(
 		@CurrentUser('id') userId: number,
 		@Param('reviewId') reviewId: string
